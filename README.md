@@ -28,7 +28,7 @@
 - **Invalid cache**: Store the invalidate user-campaign-offer metadata.
 - **user-campaign-offer metadata**: The composite key define the association from user data, campaign and offer metadata. This can be use for some meanings: The user can or cannot use the offer from the campaign.
 - **Validate campaign**: Do validation of  campaign-offer key. This can be use to update is campaign is still activating in realtime.
-- *Validation*: Do validation on user-campaign-offer.
+- **Validation**: Do validation on user-campaign-offer.
 - **User Event**: An pipeline queue that received and keep event from user, including payment action.
 - **Payment**: Do necessary step when user finisher paying action. This's subscribe to UserEvent queue to get the input data.
 - **User:** Service to handle user information.
