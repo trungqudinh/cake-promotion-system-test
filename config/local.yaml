@@ -14,8 +14,19 @@ authentication:
     - ed8d0990-4994-412f-8170-8d2a657c8e8a
 
 mysql:
-  host: 10.50.69.70
-  port: 3306
-  username: catalog
-  password: catalog
-  database_name: catalog_dev
+  host: 10.50.69.14
+  port: 30306
+  username: root
+  password: test1234
+  database_name: cake
+
+sqlite:
+  path: "./"
+
+database:
+  db_type: "mysql"
+  max_idle_conns: 10
+  max_open_conns: 10
+  conn_max_lifetime: 5
+  conn_max_idle_time: 5
+  enable_auto_migrate: true

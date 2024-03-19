@@ -3,8 +3,6 @@ package route
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"os"
 
 	"cake/pkg/api/middlewares"
 	"cake/pkg/storage/mysql"
@@ -25,13 +23,12 @@ func (server *Server) ConnectDB() {
 
 func (server *Server) Initialize() {
 	server.ConnectDB()
-
 	server.InitializeRoutes()
 }
 
-func (server *Server) Listen(addr string) {
-	fmt.Println("Listening on: ", addr)
-	log.Fatal(http.ListenAndServe(addr, server.Router))
+func (server *Server) Listen(port string) {
+	fmt.Println("Listening on: ", port)
+	log.Fatal(server.Router.Run(":" + port))
 }
 
 func (s *Server) InitializeRoutes() {
@@ -43,13 +40,6 @@ func (s *Server) InitializeRoutes() {
 			handler := promhttp.Handler()
 			handler.ServeHTTP(c.Writer, c.Request)
 		}) // Home route
-		v1.GET("/", s.Home)
+		v1.GET("/home", s.Home)
 	}
-}
-
-func (server *Server) Home(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":   http.StatusOK,
-		"response": "End point is available. Version: " + os.Getenv("APP_VERSION"),
-	})
 }

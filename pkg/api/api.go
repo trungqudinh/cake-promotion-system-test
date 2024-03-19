@@ -17,7 +17,7 @@ func BindRequest[T any](ctx *gin.Context) (httpCode int, response Response) {
 			httpCode = http.StatusBadRequest
 			response = Response{
 				Status: StatusBadRequest,
-				Error: ErrorItem{
+				Error: &ErrorItem{
 					Code:    http.StatusBadRequest,
 					Message: err.Error(),
 				},
@@ -40,9 +40,9 @@ func JSON(c *gin.Context, httpCode int, response Response) {
 
 type Response struct {
 	Status  ResponseStatus `json:"status"`
-	Message string         `json:"message,omitempty"`
+	Message *string        `json:"message,omitempty"`
 	Data    interface{}    `json:"data,omitempty"`
-	Error   ErrorItem      `json:"error,omitempty"`
+	Error   *ErrorItem     `json:"error,omitempty"`
 }
 type ErrorItem struct {
 	Code    int    `json:"code"`    // Error Code

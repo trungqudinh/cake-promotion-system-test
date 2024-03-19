@@ -13,8 +13,8 @@ type User struct {
 	Phone     string    `gorm:"size:100;not null;unique" json:"phone"`
 	Email     string    `gorm:"size:100;not null;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
-	Birthday  time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"birthday"`
-	CreatedAt time.Time `json:"created_at"`
+	Birthday  time.Time `gorm:"not null" json:"birthday"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
 

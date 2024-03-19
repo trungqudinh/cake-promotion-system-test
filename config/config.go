@@ -70,7 +70,6 @@ type Database struct {
 	MaxLifetime       int    `mapstructure:"max_lifetime"`
 	MaxOpenConns      int    `mapstructure:"max_open_conns"`
 	MaxIdleConns      int    `mapstructure:"max_idle_conns"`
-	TablePrefix       string `mapstructure:"table_prefix"`
 	EnableAutoMigrate bool   `mapstructure:"enable_auto_migrate"`
 }
 
@@ -82,19 +81,20 @@ var (
 	appConfig         AppConfig
 )
 
-func Load() {
+func Load() error {
 	var configFile string
 	if configFile = os.Getenv("CONFIG_PATH"); len(configFile) == 0 {
 		configFile = defaultConfigFile
 	}
 
 	if err := loadConfigFile(configFile); err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := scanConfigFile(&appConfig); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func loadConfigFile(configFile string) error {
