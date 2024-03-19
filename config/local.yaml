@@ -1,0 +1,21 @@
+title: cake
+
+api:
+  port: 8081
+  debug: true
+
+logger:
+  level: debug
+
+env: LOCAL
+
+authentication:
+  api_keys:
+    - ed8d0990-4994-412f-8170-8d2a657c8e8a
+
+mysql:
+  host: 10.50.69.70
+  port: 3306
+  username: catalog
+  password: catalog
+  database_name: catalog_dev
