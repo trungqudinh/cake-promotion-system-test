@@ -9,9 +9,9 @@ import (
 type User struct {
 	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
 	FullName  string    `gorm:"size:255;" json:"full_name"`
-	Username  string    `gorm:"size:255;not null;unique" json:"username"`
-	Phone     string    `gorm:"size:100;not null;unique" json:"phone"`
-	Email     string    `gorm:"size:100;not null;unique" json:"email"`
+	Username  string    `gorm:"size:255;unique" json:"username"`
+	Phone     string    `gorm:"size:100;unique" json:"phone"`
+	Email     string    `gorm:"size:100;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
 	Birthday  time.Time `gorm:"not null" json:"birthday"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`

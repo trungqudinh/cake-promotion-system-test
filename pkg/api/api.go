@@ -6,10 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func BindRequest[T any](ctx *gin.Context) (httpCode int, response Response) {
+func BindRequest[T any](ctx *gin.Context) (httpCode int, request T, response Response) {
 	var (
 		err error
-		req = new(T)
 	)
 	httpCode = http.StatusOK
 	defer func() {
@@ -27,9 +26,9 @@ func BindRequest[T any](ctx *gin.Context) (httpCode int, response Response) {
 	}()
 
 	if ctx.Request.Method == http.MethodGet {
-		err = ctx.ShouldBindQuery(req)
+		err = ctx.ShouldBindQuery(&request)
 	} else {
-		err = ctx.ShouldBindJSON(req)
+		err = ctx.ShouldBindJSON(&request)
 	}
 	return
 }

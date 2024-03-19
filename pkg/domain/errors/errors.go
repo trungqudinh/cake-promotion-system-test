@@ -15,10 +15,12 @@ var (
 	ErrNotAllowDeleteWithChild = New400Response("ErrNotAllowDeleteWithChild")
 	ErrNotAllowDelete          = New400Response("ErrNotAllowDelete")
 	ErrNotFoundUser            = New400Response("ErrNotFoundUser")
-	ErrInvalidUserName         = New400Response("ErrInvalidUserName")
+	ErrInvalidUsername         = New400Response("ErrInvalidUsername")
 	ErrInvalidPassword         = New400Response("ErrInvalidPassword")
 	ErrInvalidUser             = New400Response("ErrInvalidUser")
 	ErrUserDisable             = New400Response("ErrUserDisable")
+	ErrInvalidEmail            = New400Response("ErrInvalidEmail")
+	ErrInvalidPhoneNumber      = New400Response("ErrInvalidPhone")
 
 	ErrNoPerm          = NewResponse(401, 401, "ErrNoPerm")
 	ErrInvalidToken    = NewResponse(9999, 401, "ErrInvalidToken")
