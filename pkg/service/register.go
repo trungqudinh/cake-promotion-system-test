@@ -3,13 +3,17 @@ package service
 import (
 	"cake/pkg/api"
 	"cake/pkg/convert"
+	"cake/pkg/domain"
 	"cake/pkg/domain/errors"
+	"cake/pkg/encrypt"
 	"net/mail"
 	"regexp"
 	"strings"
 )
 
-type RegisterService struct{}
+type RegisterService struct {
+	userRepository domain.UserRepository
+}
 
 type RegisterRequest struct {
 	FullName string `json:"full_name" binding:"required"`
@@ -21,7 +25,7 @@ type RegisterRequest struct {
 }
 
 type RegisterResponse struct {
-	UserId   uint32 `json:"user_id"`
+	UserId   uint   `json:"user_id"`
 	FullName string `json:"full_name"`
 	Username string `json:"username"`
 	Phone    string `json:"phone"`
@@ -62,17 +66,53 @@ func (r *RegisterService) ValidateUserIdentity(req *RegisterRequest) error {
 
 }
 
-func NewRegisterService() *RegisterService {
-	return &RegisterService{}
+type NewRegisterServiceOption func(*RegisterService)
+
+func WithUserRepository(repo domain.UserRepository) NewRegisterServiceOption {
+	return func(us *RegisterService) {
+		us.userRepository = repo
+	}
+}
+
+func NewRegisterService(opts ...NewRegisterServiceOption) *RegisterService {
+	rs := &RegisterService{}
+	for _, opt := range opts {
+		opt(rs)
+	}
+	return rs
 }
 
 func (r *RegisterService) Register(req *RegisterRequest) (response api.Response) {
-	err := r.ValidateUserIdentity(req)
-	if err != nil {
-		response = api.Response{
-			Status:  api.StatusBadRequest,
-			Message: convert.ToPointer(err.Error()),
+	var err error
+	defer func() {
+		if err != nil {
+			response = api.Response{
+				Status:  api.StatusError,
+				Message: convert.ToPointer(err.Error()),
+			}
 		}
+	}()
+
+	err = r.ValidateUserIdentity(req)
+	if err != nil {
+		return
+	}
+
+	req.Password = encrypt.SHA1String(req.Password)
+	userProfile := &domain.UserProfile{
+		UserAccount: domain.UserAccount{
+			Username: req.Username,
+			Phone:    req.Phone,
+			Email:    req.Email,
+			Password: req.Password,
+			Status:   domain.UserStatusEnable,
+		},
+		FullName: req.FullName,
+		Birthday: req.Birthday,
+	}
+
+	userId, err := r.userRepository.CreateUser(userProfile)
+	if err != nil {
 		return
 	}
 
@@ -80,7 +120,7 @@ func (r *RegisterService) Register(req *RegisterRequest) (response api.Response)
 		Status:  api.StatusSuccess,
 		Message: convert.ToPointer("Register Success"),
 		Data: RegisterResponse{
-			UserId:   1,
+			UserId:   userId,
 			FullName: req.FullName,
 			Username: req.Username,
 			Phone:    req.Phone,

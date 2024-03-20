@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -26,7 +27,7 @@ func InitDatabase() *MySqlStorage {
 		func() {
 			db, err := initGormDatabase()
 			if err != nil {
-				panic(fmt.Errorf("failed to connect database, error: %v", err))
+				panic(fmt.Errorf("failed to InitDatabase, error: %v", err))
 			}
 			mysqlStorage.db = db
 		},
@@ -88,10 +89,12 @@ func newGormDatabase() (*gorm.DB, error) {
 }
 
 func autoMigrate(db *gorm.DB) error {
-	// if dbType := config.GetAppConfig().Database.DBType; strings.ToLower(dbType) == "mysql" {
-	// 	db = db.Set("gorm:table_options", "ENGINE=InnoDB")
-	// }
+	if dbType := config.GetAppConfig().Database.DBType; strings.ToLower(dbType) == "mysql" {
+		db = db.Set("gorm:table_options", "ENGINE=InnoDB")
+	}
 	return db.AutoMigrate(
 		&User{},
+		&UserEvent{},
+		&UserIdentity{},
 	)
 }

@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	New = errors.New
+	New  = errors.New
+	NewF = fmt.Errorf
 )
 
 var (
@@ -22,12 +23,18 @@ var (
 	ErrInvalidEmail            = New400Response("ErrInvalidEmail")
 	ErrInvalidPhoneNumber      = New400Response("ErrInvalidPhone")
 
+	ErrEmailIsExist    = NewResponse(409, 409, "ErrEmailIsExist")
+	ErrPhoneIsExist    = NewResponse(409, 409, "ErrPhoneIsExist")
+	ErrUsernameIsExist = NewResponse(409, 409, "ErrUsernameIsExist")
+	ErrUserIdIsExist   = NewResponse(409, 409, "ErrUserIdIsExist")
+
 	ErrNoPerm          = NewResponse(401, 401, "ErrNoPerm")
 	ErrInvalidToken    = NewResponse(9999, 401, "ErrInvalidToken")
 	ErrNotFound        = NewResponse(404, 404, "ErrNotFound")
 	ErrMethodNotAllow  = NewResponse(405, 405, "ErrMethodNotAllow")
 	ErrTooManyRequests = NewResponse(429, 429, "ErrTooManyRequests")
 	ErrInternalServer  = NewResponse(500, 500, "ErrInternalServer")
+	ErrConflict        = NewResponse(409, 409, "ErrConflict")
 )
 
 type ResponseError struct {

@@ -12,7 +12,7 @@ type UserService struct {
 }
 
 func (u *UserService) Verify(ctx context.Context, identityField string, identityValue string, password string) (*domain.UserAccount, error) {
-	user, err := u.userRepo.FindUserByField(ctx, identityField, identityValue)
+	user, err := u.userRepo.FindUserByField(identityField, identityValue)
 	if err != nil {
 		return nil, err
 	}
@@ -25,17 +25,12 @@ func (u *UserService) Verify(ctx context.Context, identityField string, identity
 	return user, nil
 }
 
-func (u *UserService) Register(ctx context.Context, user *domain.UserProfile) error {
-	user.Password = encrypt.SHA1String(user.Password)
-	return u.userRepo.CreateUser(ctx, user)
-}
-
 func (u *UserService) Login(ctx context.Context, identityField string, identityValue string, password string) (*domain.UserAccount, error) {
 	user, err := u.Verify(ctx, identityField, identityValue, password)
 	if err != nil {
 		return nil, err
 	}
-	err = u.userRepo.UpdateLastLogin(ctx, user)
+	err = u.userRepo.UpdateLastLogin(user)
 	if err != nil {
 		return nil, err
 	}

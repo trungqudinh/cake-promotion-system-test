@@ -15,6 +15,13 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type LoginResponse struct {
+	UserId   uint32 `json:"user_id"`
+	Username string `json:"username"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+}
+
 func (r *LoginService) Login(req *LoginRequest) (response api.Response) {
 	return
 }

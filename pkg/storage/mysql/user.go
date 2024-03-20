@@ -4,29 +4,89 @@ import (
 	"errors"
 	"slices"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        uint32    `gorm:"primary_key;auto_increment" json:"id"`
-	FullName  string    `gorm:"size:255;" json:"full_name"`
-	Username  string    `gorm:"size:255;unique" json:"username"`
-	Phone     string    `gorm:"size:100;unique" json:"phone"`
-	Email     string    `gorm:"size:100;unique" json:"email"`
-	Password  string    `gorm:"size:100;not null;" json:"password"`
-	Birthday  time.Time `gorm:"not null" json:"birthday"`
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	gorm.Model
+	FullName string `gorm:"size:255;"`
+	Username string `gorm:"size:255;"`
+	Phone    string `gorm:"size:100;"`
+	Email    string `gorm:"size:100;"`
+	Password string `gorm:"size:100;not null;"`
+	Birthday time.Time
 }
 
 type UserEvent struct {
-	UserID    User
-	Status    int       `gorm:"default:0" json:"status"`
-	Username  string    `gorm:"size:255;not null;" json:"username"`
-	LastLogin time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"last_login"`
+	UserID    uint
+	User      User
+	Status    int `gorm:"default:0"`
+	LastLogin time.Time
 }
 
+type UserIdentity struct {
+	UserID uint
+	User   User
+	Type   string
+	Value  string `gorm:"not null;"`
+	Active bool   `gorm:"default:true"`
+}
+
+func (m *MySqlStorage) EnableDebug() *MySqlStorage {
+	m.db = m.db.Debug()
+	return m
+}
 func (m *MySqlStorage) FirstOrCreate(value interface{}) error {
-	return m.db.Debug().FirstOrCreate(value).Error
+	return m.db.FirstOrCreate(value).Error
+}
+
+func (m *MySqlStorage) Create(value interface{}) error {
+	return m.db.Create(value).Error
+}
+
+func (m *MySqlStorage) FindOne(query *gorm.DB, out interface{}) (bool, error) {
+	result := query.First(out)
+	if err := result.Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (m *MySqlStorage) FindUserById(id uint32) (*User, error) {
+	var (
+		err error
+		u   User
+	)
+	query := m.db.Model(User{}).Where("id = ?", id)
+	found, err := m.FindOne(query, &u)
+
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, nil
+	}
+	return &u, nil
+}
+
+func (m *MySqlStorage) FindUserIdentity(value string) (*UserIdentity, error) {
+	var (
+		err    error
+		record UserIdentity
+	)
+	query := m.db.Model(UserIdentity{}).Where("active = 1 and value = ?", value)
+	found, err := m.FindOne(query, &record)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, nil
+	}
+	return &record, nil
 }
 
 // Supported Fields: `{"id", "username", "phone", "email"}`

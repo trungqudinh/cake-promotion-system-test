@@ -5,25 +5,51 @@ import (
 	"log"
 
 	"cake/pkg/api/middlewares"
+	"cake/pkg/domain"
+	"cake/pkg/service"
 	"cake/pkg/storage/mysql"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gorm.io/gorm"
 )
 
 type Server struct {
-	DB     *gorm.DB
-	Router *gin.Engine
+	mysqlStorage *mysql.MySqlStorage
+	Router       *gin.Engine
+	routes       Routes
+	services     Services
+	repositories Repositories
 }
 
-func (server *Server) ConnectDB() {
-	mysql.InitDatabase()
+type Routes struct {
+	home HomeRoute
+	user UserRoute
+}
+
+type Services struct {
+	registerService *service.RegisterService
+}
+
+type Repositories struct {
+	userRepository domain.UserRepository
+}
+
+func (server *Server) InitializeDatabases() {
+	server.mysqlStorage = mysql.InitDatabase()
 }
 
 func (server *Server) Initialize() {
-	server.ConnectDB()
+	server.InitializeDatabases()
+	server.InitializeRepositories()
+	server.InitializeServices()
 	server.InitializeRoutes()
+	server.InitializeApi()
+}
+
+func (s *Server) InitializeRepositories() {
+	s.repositories = Repositories{
+		userRepository: domain.NewUserMySQLRepository(s.mysqlStorage),
+	}
 }
 
 func (server *Server) Listen(port string) {
@@ -31,7 +57,25 @@ func (server *Server) Listen(port string) {
 	log.Fatal(server.Router.Run(fmt.Sprintf(":%s", port)))
 }
 
+func (s *Server) InitializeServices() {
+	s.services = Services{
+		registerService: service.NewRegisterService(
+			service.WithUserRepository(s.repositories.userRepository),
+		),
+	}
+}
+
 func (s *Server) InitializeRoutes() {
+	s.routes = Routes{
+		home: HomeRoute{},
+		user: UserRoute{
+			ResgisterService: s.services.registerService,
+		},
+	}
+}
+
+func (s *Server) InitializeApi() {
+	fmt.Printf("InitializeRoutes: %#v\n", s)
 	s.Router = gin.Default()
 	v1 := s.Router.Group("/rest/api/v1/")
 	v1.Use(middlewares.PrometheusMiddleware)
@@ -40,10 +84,9 @@ func (s *Server) InitializeRoutes() {
 			handler := promhttp.Handler()
 			handler.ServeHTTP(c.Writer, c.Request)
 		}) // Home route
-		home := HomeRoute{}
-		user := UserRoute{}
-		v1.GET("/home", home.Home)
-		v1.POST("/register", user.Register)
-		v1.POST("/login", user.Login)
+
+		v1.GET("/home", s.routes.home.Home)
+		v1.POST("/register", s.routes.user.Register)
+		v1.POST("/login", s.routes.user.Login)
 	}
 }
