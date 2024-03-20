@@ -43,7 +43,7 @@
 <img src="docs/images/Cake-campaign-creator.svg">
 
 When promotion team create/update campaign, they will create or select existed rule and effect also. Some will invalid or out-of-date, so for fast validation, we push them into "invalid-cache" first.
-Right after campaign is created or new non-payment event from user is received, the system will calculate to answer the question: "For each selected users, which campaigns and offers is available to them". The data will be pre-calculate in this phase and will be store in centralized database that optimize for READ action. This will help to improve response time when user try to get list of theirs offers and do payment action. The data will be store with the composite key from `userid-campaignid-offersid` .
+Right after campaign is created or new non-payment event from user is received, the system will calculate to answer the question: "For each selected users, which campaigns and offers is available to them". The data will be pre-calculate in this phase and will be store in centralized database that optimize for READ action. This will help to improve response time when user try to get list of theirs offers and do payment action. The data will be store with the composite key from `userid-campaignid-offersid`.
 
 ## When user list their offers
 
