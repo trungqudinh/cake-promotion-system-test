@@ -51,7 +51,9 @@ type ErrorItem struct {
 type ResponseStatus string
 
 const (
-	StatusSuccess    ResponseStatus = "SUCCESS"
-	StatusError      ResponseStatus = "ERROR"
-	StatusBadRequest ResponseStatus = "BAD_REQUEST"
+	StatusSuccess      ResponseStatus = "SUCCESS"
+	StatusError        ResponseStatus = "ERROR"
+	StatusUnauthorized ResponseStatus = "UNAUTHORIZED"
+	StatusNotFound     ResponseStatus = "NOT_FOUND"
+	StatusBadRequest   ResponseStatus = "BAD_REQUEST"
 )

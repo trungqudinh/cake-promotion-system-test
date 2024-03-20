@@ -66,20 +66,10 @@ func (r *RegisterService) ValidateUserIdentity(req *RegisterRequest) error {
 
 }
 
-type NewRegisterServiceOption func(*RegisterService)
-
-func WithUserRepository(repo domain.UserRepository) NewRegisterServiceOption {
-	return func(us *RegisterService) {
-		us.userRepository = repo
+func NewRegisterService(userRepository domain.UserRepository) *RegisterService {
+	return &RegisterService{
+		userRepository: userRepository,
 	}
-}
-
-func NewRegisterService(opts ...NewRegisterServiceOption) *RegisterService {
-	rs := &RegisterService{}
-	for _, opt := range opts {
-		opt(rs)
-	}
-	return rs
 }
 
 func (r *RegisterService) Register(req *RegisterRequest) (response api.Response) {
@@ -128,5 +118,7 @@ func (r *RegisterService) Register(req *RegisterRequest) (response api.Response)
 			Birthday: req.Birthday,
 		},
 	}
+
+	r.userRepository.UpdateLastLogin(userId)
 	return
 }

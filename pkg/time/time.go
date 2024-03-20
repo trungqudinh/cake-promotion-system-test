@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	Now      = time.Now
 	LocLocal *time.Location
 )
 

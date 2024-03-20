@@ -9,7 +9,8 @@ import (
 )
 
 type UserRoute struct {
-	ResgisterService *service.RegisterService
+	RegisterService *service.RegisterService
+	LoginService    *service.LoginService
 }
 
 func (u *UserRoute) Register(c *gin.Context) {
@@ -18,15 +19,14 @@ func (u *UserRoute) Register(c *gin.Context) {
 		api.JSON(c, httpCode, response)
 		return
 	}
-	api.JSON(c, http.StatusOK, u.ResgisterService.Register(&request))
+	api.JSON(c, http.StatusOK, u.RegisterService.Register(&request))
 }
 
-func (UserRoute) Login(c *gin.Context) {
-	LoginService := service.NewLoginService()
+func (u *UserRoute) Login(c *gin.Context) {
 	httpCode, request, response := api.BindRequest[service.LoginRequest](c)
 	if httpCode != http.StatusOK {
 		api.JSON(c, httpCode, response)
 		return
 	}
-	api.JSON(c, http.StatusOK, LoginService.Login(&request))
+	api.JSON(c, http.StatusOK, u.LoginService.Login(&request))
 }

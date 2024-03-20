@@ -19,6 +19,7 @@ type User struct {
 }
 
 type UserEvent struct {
+	Id        uint `gorm:"primaryKey"`
 	UserID    uint
 	User      User
 	Status    int `gorm:"default:0"`
@@ -56,7 +57,7 @@ func (m *MySqlStorage) FindOne(query *gorm.DB, out interface{}) (bool, error) {
 	return true, nil
 }
 
-func (m *MySqlStorage) FindUserById(id uint32) (*User, error) {
+func (m *MySqlStorage) FindUserById(id uint) (*User, error) {
 	var (
 		err error
 		u   User
@@ -107,12 +108,12 @@ func (m *MySqlStorage) FindUserByField(fieldName string, value string) (*User, e
 	return &u, nil
 }
 
-func (m *MySqlStorage) GetLatestUserEvent(username string) (*UserEvent, error) {
+func (m *MySqlStorage) GetLatestUserEvent(userId uint) (*UserEvent, error) {
 	var (
 		err error
 		ue  UserEvent
 	)
-	err = m.db.Model(UserEvent{}).Where("username = ?", username).Last(&ue).Error
+	err = m.db.Model(UserEvent{}).Where("user_id = ?", userId).Last(&ue).Error
 	if err != nil {
 		return nil, err
 	}

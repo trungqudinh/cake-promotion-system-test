@@ -28,6 +28,7 @@ type Routes struct {
 
 type Services struct {
 	registerService *service.RegisterService
+	loginService    *service.LoginService
 }
 
 type Repositories struct {
@@ -59,9 +60,8 @@ func (server *Server) Listen(port string) {
 
 func (s *Server) InitializeServices() {
 	s.services = Services{
-		registerService: service.NewRegisterService(
-			service.WithUserRepository(s.repositories.userRepository),
-		),
+		registerService: service.NewRegisterService(s.repositories.userRepository),
+		loginService:    service.NewLoginService(s.repositories.userRepository),
 	}
 }
 
@@ -69,7 +69,8 @@ func (s *Server) InitializeRoutes() {
 	s.routes = Routes{
 		home: HomeRoute{},
 		user: UserRoute{
-			ResgisterService: s.services.registerService,
+			RegisterService: s.services.registerService,
+			LoginService:    s.services.loginService,
 		},
 	}
 }

@@ -9,13 +9,14 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *UserProfile) (uint, error)
-	UpdateLastLogin(user *UserAccount) error
+	UpdateLastLogin(userId uint) error
 	CreateEvent(event *mysql.UserEvent) error
 	FindUserByField(fieldName string, value string) (*UserAccount, error)
+	FindUserByIdentity(value string) (*UserAccount, error)
 }
 
 type UserAccount struct {
-	UserID    uint32     `json:"user_id"`
+	UserID    uint       `json:"user_id"`
 	Username  string     `json:"username"`
 	Phone     string     `json:"phone"`
 	Email     string     `json:"email"`
@@ -126,10 +127,50 @@ func (u *UserMysqlRepository) CreateUser(userProfile *UserProfile) (userId uint,
 	return user.ID, nil
 }
 
-func (u *UserMysqlRepository) CreateEvent(event *mysql.UserEvent) error {
-	return nil
+func (u *UserMysqlRepository) FindUserByIdentity(value string) (*UserAccount, error) {
+	userIdentity, error := u.mysql.FindUserIdentity(value)
+	if error != nil {
+		return nil, errors.ErrInternalServer
+	}
+	if userIdentity == nil {
+		return nil, errors.ErrNotFound
+	}
+	user, error := u.mysql.FindUserById(userIdentity.UserID)
+	if error != nil {
+		return nil, errors.ErrInternalServer
+	}
+	if user == nil {
+		return nil, errors.ErrNotFound
+	}
+
+	userEvent, _ := u.mysql.GetLatestUserEvent(user.ID)
+	if userEvent == nil {
+		userEvent = &mysql.UserEvent{
+			UserID:    user.ID,
+			LastLogin: time.Now(),
+		}
+	}
+	userAccount := UserAccount{
+		UserID:    user.ID,
+		Username:  user.Username,
+		Phone:     user.Phone,
+		Email:     user.Email,
+		Password:  user.Password,
+		LastLogin: userEvent.LastLogin.Format("2006-01-02 15:04:05"),
+		Status:    UserStatus(userEvent.Status),
+	}
+	return &userAccount, nil
 }
 
-func (u *UserMysqlRepository) UpdateLastLogin(user *UserAccount) error {
-	return nil
+func (u *UserMysqlRepository) CreateEvent(event *mysql.UserEvent) error {
+	return u.mysql.Create(event)
+}
+
+func (u *UserMysqlRepository) UpdateLastLogin(userId uint) error {
+	userEvent := &mysql.UserEvent{
+		UserID:    userId,
+		Status:    int(UserStatusEnable),
+		LastLogin: time.Now(),
+	}
+	return u.mysql.Create(userEvent)
 }
