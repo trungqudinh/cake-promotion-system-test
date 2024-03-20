@@ -12,6 +12,7 @@ import (
 	"cake/config"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -57,20 +58,24 @@ func newGormDatabase() (*gorm.DB, error) {
 	var (
 		cfg = config.GetAppConfig().Database
 		dsn string
+		db  *gorm.DB
+		err error
 	)
 	switch cfg.DBType {
 	case "mysql":
 		dsn = config.GetAppConfig().Mysql.GetDSN()
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			PrepareStmt: true,
+		})
 	case "sqlite3":
 		dsn = config.GetAppConfig().Sqlite.GetDSN()
 		_ = os.MkdirAll(filepath.Dir(dsn), 0777)
+		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
+			PrepareStmt: true,
+		})
 	default:
 		return nil, errors.New("unknown db: " + cfg.DBType)
 	}
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		PrepareStmt: true,
-	})
 
 	if err != nil {
 		return nil, err

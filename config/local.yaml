@@ -21,10 +21,10 @@ mysql:
   database_name: cake
 
 sqlite:
-  path: "./"
+  path: "./sqlite.db"
 
 database:
-  db_type: "mysql"
+  db_type: "sqlite3"
   max_idle_conns: 10
   max_open_conns: 10
   conn_max_lifetime: 5
