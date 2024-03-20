@@ -18,6 +18,19 @@
 ### Non-functional requirement
 - System can support >= 100,000 concurrent users on the campaign:
     - The system should be scalable.
+
+## System to system
+
+<img src="docs/images/Cake-overall.svg">
+
+We will separate this into multiple systems:
+- Gateway: This received request from user mobile apps directly. This include authen/author/rate limiter also.
+- Promotion: Manipulation promotion rule.
+- Payment: The system handle to all related payment thing.
+- Book keeping: The system support for accounting.
+
+The following will focus on **Promotion system** only.
+
 ## Component definition
 
 - **Rule**: A series of condition define by promotion teams. If the conditions match, the **effect** will be executed. In simple language, this is **if statement**. Eg: "If this user is in 100 first log in users and user top-up the mobile phone".
@@ -30,13 +43,12 @@
 - **Validate campaign**: Do validation of  campaign-offer key. This can be use to update is campaign is still activating in realtime.
 - **Validation**: Do validation on user-campaign-offer.
 - **User Event**: An pipeline queue that received and keep event from user, including payment action.
-- **Payment**: Do necessary step when user finisher paying action. This's subscribe to UserEvent queue to get the input data.
+- **Payment**: The service do necessary step when user finisher paying action. This's subscribe to UserEvent queue to get the input data.
 - **User:** Service to handle user information.
 - **Pro-processed database**: The data will be pre-calculator first and try to push them to this database. This will improve time for validation and suggest offers for users. This should be a READ optimization database
 - **Data processing**:  Handle the data pre-calculation and push the centralize database.
-- **User's balance**: Do the money balancing for user.
-- **Cake Gate**: Internet public gateway received and routing user event from Cake mobile apps directly. This include authen/author/rate limiter also.
-- **API Gateway** or **Payment Gateway**: Payment internal gateway route to needed services for payment and promotion business logic.
+- **User's balance**: Do the money balancing for user. This service help to connect to Payment System.
+- **API Gateway** or **Promotion Gateway**: Internal gateway route to needed services for promotion business logic.
 
 ## Campaign creation side
 
