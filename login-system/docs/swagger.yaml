@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: login-system
+  version: 1.0.0
+
+servers:
+  - url: localhost:8081
+
+paths:
+  /register:
+    post:
+      summary: Register new user
+      description: Register new user using username, email or phone number.
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+
+  /login:
+    post:
+      summary: Login
+      description: Login using username, email or phone number.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+                type: object
+                properties:
+                  identity_value:
+                    type: string
+                    example: johndoe@example.com
+                  password:
+                    type: string
+                    example: 12345
+                  
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: John Doe
+        username:
+          type: string
+          example: johndoe123
+        phone:
+          type: string
+          example: "+123456789011"
+        email:
+          type: string
+          format: email
+          example: johndoe@example.com
+        password:
+          type: string
+          example: securepassword123
+        birthday:
+          type: string
+          format: date
+          example: "1990-01-01"
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
